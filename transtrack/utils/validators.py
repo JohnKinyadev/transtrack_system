@@ -45,7 +45,10 @@ def validate_period(value):
 
 
 def is_due_soon(value, days=30):
-    parsed = parse_date(value)
+    try:
+        parsed = parse_date(value)
+    except ValueError:
+        return False
     today = datetime.now().date()
     return today <= parsed <= today + timedelta(days=days)
 
