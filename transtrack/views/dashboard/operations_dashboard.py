@@ -16,10 +16,10 @@ class OperationsDashboard(AdminDashboard):
     def __init__(self, master, on_logout):
         self.menu_items = (
             ("Dashboard", self.show_home),
+            ("Routes", lambda: self.show_view("Routes", RoutesView)),
             ("Vehicles", lambda: self.show_view("Vehicle Overview", VehiclesView)),
             ("Drivers", lambda: self.show_view("Driver Management", DriversView)),
             ("Conductors", lambda: self.show_view("Conductor Management", ConductorsView)),
-            ("Routes", lambda: self.show_view("Routes", RoutesView)),
             ("Trips", lambda: self.show_view("Trip Assignments", TripsView)),
             ("Collections", lambda: self.show_view("Collections", CollectionsView)),
             ("Expenses", lambda: self.show_view("Expenses", ExpensesView)),

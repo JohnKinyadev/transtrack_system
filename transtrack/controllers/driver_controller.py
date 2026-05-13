@@ -8,4 +8,3 @@ class DriverController(BaseController):
     reference_fields = {
         "assigned_vehicle": {"collection": "vehicles", "label": "Assigned Vehicle ID"},
     }
-    future_date_fields = {"license_expiry": "License expiry"}

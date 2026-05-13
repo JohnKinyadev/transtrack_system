@@ -8,7 +8,6 @@ class DriversView(CrudView):
         fields = [
             {"key": "full_name", "label": "Full Name"},
             {"key": "license_no", "label": "License No"},
-            {"key": "license_expiry", "label": "License Expiry", "type": "date"},
             {"key": "contact", "label": "Contact"},
             {
                 "key": "assigned_vehicle",
@@ -18,17 +17,13 @@ class DriversView(CrudView):
                 "relation": True,
                 "optional": True,
             },
-            {"key": "cars_owned_count", "label": "Number of Cars Owned"},
-            {"key": "owned_car_registrations", "label": "Owned Car Registrations"},
         ]
-        columns = (
+        detail_columns = (
             "id",
             "full_name",
             "license_no",
-            "license_expiry",
             "contact",
             "assigned_vehicle",
-            "cars_owned_count",
-            "owned_car_registrations",
         )
-        super().__init__(master, DriverController(), "Driver", fields, columns)
+        columns = ("id", "full_name", "license_no", "contact", "assigned_vehicle")
+        super().__init__(master, DriverController(), "Driver", fields, columns, detail_columns)

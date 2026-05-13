@@ -17,5 +17,6 @@ class ConductorsView(CrudView):
                 "optional": True,
             },
         ]
+        detail_columns = ("id", "full_name", "contact", "assigned_vehicle")
         columns = ("id", "full_name", "contact", "assigned_vehicle")
-        super().__init__(master, ConductorController(), "Conductor", fields, columns)
+        super().__init__(master, ConductorController(), "Conductor", fields, columns, detail_columns)

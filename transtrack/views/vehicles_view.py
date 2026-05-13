@@ -17,7 +17,7 @@ class VehiclesView(CrudView):
             {"key": "inspection_expiry", "label": "Inspection Expiry", "type": "date"},
             {"key": "status", "label": "Status", "type": "select", "values": VEHICLE_STATUSES},
         ]
-        columns = (
+        detail_columns = (
             "id",
             "plate",
             "make",
@@ -29,4 +29,5 @@ class VehiclesView(CrudView):
             "inspection_expiry",
             "status",
         )
-        super().__init__(master, VehicleController(), "Vehicle", fields, columns)
+        columns = ("id", "plate", "make", "model", "owner_id", "status")
+        super().__init__(master, VehicleController(), "Vehicle", fields, columns, detail_columns)

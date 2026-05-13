@@ -12,5 +12,21 @@ class CollectionsView(CrudView):
             {"key": "amount_collected", "label": "Amount Collected"},
             {"key": "date", "label": "Date", "type": "date"},
         ]
-        columns = ("id", "trip_id", "vehicle_id", "conductor_id", "amount_collected", "date")
-        super().__init__(master, CollectionController(), "Collection", fields, columns)
+        detail_columns = ("id", "trip_id", "vehicle_id", "conductor_id", "amount_collected", "date")
+        columns = ("id", "vehicle_id", "conductor_id", "amount_collected", "date")
+        autofill_rules = [
+            {
+                "trigger": "trip_id",
+                "mode": "copy",
+                "collection": "trips",
+                "fields": {"vehicle_id": "vehicle_id", "conductor_id": "conductor_id"},
+            },
+            {
+                "trigger": "vehicle_id",
+                "mode": "lookup",
+                "collection": "conductors",
+                "match_field": "assigned_vehicle",
+                "target": "conductor_id",
+            },
+        ]
+        super().__init__(master, CollectionController(), "Collection", fields, columns, detail_columns, autofill_rules)

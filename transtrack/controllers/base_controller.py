@@ -54,6 +54,11 @@ class BaseController:
         log_action("update", self.module_name, {"id": str(document_id)})
         return result.modified_count
 
+    def delete(self, document_id):
+        result = self.collection.delete_one(self.id_filter(document_id))
+        log_action("delete", self.module_name, {"id": str(document_id)})
+        return result.deleted_count
+
     def deactivate(self, document_id):
         return self.update(document_id, {"status": "Inactive"})
 

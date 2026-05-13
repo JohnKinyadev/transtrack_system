@@ -12,5 +12,6 @@ class DeductionsView(CrudView):
             {"key": "date", "label": "Date", "type": "date"},
             {"key": "reason", "label": "Reason"},
         ]
-        columns = ("id", "owner_id", "type", "amount", "date", "reason")
-        super().__init__(master, DeductionController(), "Deduction", fields, columns)
+        detail_columns = ("id", "owner_id", "type", "amount", "date", "reason")
+        columns = ("id", "owner_id", "type", "amount", "date")
+        super().__init__(master, DeductionController(), "Deduction", fields, columns, detail_columns)

@@ -16,7 +16,7 @@ class TripsView(CrudView):
             {"key": "arrival_time", "label": "Arrival Time"},
             {"key": "status", "label": "Status", "type": "select", "values": TRIP_STATUSES},
         ]
-        columns = (
+        detail_columns = (
             "id",
             "vehicle_id",
             "driver_id",
@@ -27,4 +27,22 @@ class TripsView(CrudView):
             "departure_time",
             "arrival_time",
         )
-        super().__init__(master, TripController(), "Trip", fields, columns)
+        columns = ("id", "vehicle_id", "driver_id", "route_id", "date", "status")
+        autofill_rules = [
+            {"trigger": "vehicle_id", "mode": "copy", "collection": "vehicles", "fields": {"route_id": "route_id"}},
+            {
+                "trigger": "vehicle_id",
+                "mode": "lookup",
+                "collection": "drivers",
+                "match_field": "assigned_vehicle",
+                "target": "driver_id",
+            },
+            {
+                "trigger": "vehicle_id",
+                "mode": "lookup",
+                "collection": "conductors",
+                "match_field": "assigned_vehicle",
+                "target": "conductor_id",
+            },
+        ]
+        super().__init__(master, TripController(), "Trip", fields, columns, detail_columns, autofill_rules)

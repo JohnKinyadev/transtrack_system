@@ -12,5 +12,6 @@ class RoutesView(CrudView):
             {"key": "fare_structure", "label": "Fare Structure"},
             {"key": "expected_revenue", "label": "Expected Revenue"},
         ]
-        columns = ("id", "name", "origin", "destination", "stages", "fare_structure", "expected_revenue")
-        super().__init__(master, RouteController(), "Route", fields, columns)
+        detail_columns = ("id", "name", "origin", "destination", "stages", "fare_structure", "expected_revenue")
+        columns = ("id", "name", "origin", "destination", "expected_revenue")
+        super().__init__(master, RouteController(), "Route", fields, columns, detail_columns)

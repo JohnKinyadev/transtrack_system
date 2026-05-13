@@ -12,5 +12,9 @@ class ExpensesView(CrudView):
             {"key": "amount", "label": "Amount"},
             {"key": "date", "label": "Date", "type": "date"},
         ]
-        columns = ("id", "trip_id", "vehicle_id", "type", "amount", "date", "logged_by")
-        super().__init__(master, ExpenseController(), "Expense", fields, columns)
+        detail_columns = ("id", "trip_id", "vehicle_id", "type", "amount", "date", "logged_by")
+        columns = ("id", "vehicle_id", "type", "amount", "date")
+        autofill_rules = [
+            {"trigger": "trip_id", "mode": "copy", "collection": "trips", "fields": {"vehicle_id": "vehicle_id"}},
+        ]
+        super().__init__(master, ExpenseController(), "Expense", fields, columns, detail_columns, autofill_rules)

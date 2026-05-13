@@ -13,5 +13,6 @@ class OwnersView(CrudView):
             {"key": "shares", "label": "Shares"},
             {"key": "status", "label": "Status", "type": "select", "values": OWNER_STATUSES},
         ]
-        columns = ("id", "full_name", "contact", "email", "national_id", "shares", "status")
-        super().__init__(master, OwnerController(), "Owner", fields, columns)
+        detail_columns = ("id", "full_name", "contact", "email", "national_id", "shares", "status")
+        columns = ("id", "full_name", "contact", "status")
+        super().__init__(master, OwnerController(), "Owner", fields, columns, detail_columns)

@@ -38,6 +38,13 @@ def label_for(collection_name, public_id):
 
 
 def display_value(column, value):
+    collection_name = relation_collection(column)
+    if collection_name:
+        return label_for(collection_name, value)
+    return value
+
+
+def relation_collection(column):
     relation_map = {
         "owner_id": "owners",
         "vehicle_id": "vehicles",
@@ -47,10 +54,7 @@ def display_value(column, value):
         "route_id": "routes",
         "trip_id": "trips",
     }
-    collection_name = relation_map.get(column)
-    if collection_name:
-        return label_for(collection_name, value)
-    return value
+    return relation_map.get(column)
 
 
 def owner_options():

@@ -24,11 +24,11 @@ class AdminDashboard(BaseDashboard):
     def __init__(self, master, on_logout):
         self.menu_items = (
             ("Dashboard", self.show_home),
+            ("Routes", lambda: self.show_view("Route Management", RoutesView)),
             ("Owners", lambda: self.show_view("Vehicle Owner Management", OwnersView)),
             ("Vehicles", lambda: self.show_view("Vehicle Management", VehiclesView)),
             ("Drivers", lambda: self.show_view("Driver Management", DriversView)),
             ("Conductors", lambda: self.show_view("Conductor Management", ConductorsView)),
-            ("Routes", lambda: self.show_view("Route Management", RoutesView)),
             ("Trips", lambda: self.show_view("Trip Management", TripsView)),
             ("Collections", lambda: self.show_view("Collections Overview", CollectionsView)),
             ("Expenses", lambda: self.show_view("Expense Overview", ExpensesView)),
