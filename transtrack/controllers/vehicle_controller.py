@@ -1,5 +1,5 @@
 from transtrack.controllers.base_controller import BaseController
-from transtrack.models.base import to_object_id
+from transtrack.utils.relations import reference_query
 
 
 class VehicleController(BaseController):
@@ -16,4 +16,4 @@ class VehicleController(BaseController):
     }
 
     def list_for_owner(self, owner_id):
-        return self.list_all({"owner_id": owner_id})
+        return self.list_all(reference_query("owner_id", "owners", owner_id))
