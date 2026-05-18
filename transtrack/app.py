@@ -6,7 +6,9 @@ from transtrack.views.dashboard.conductor_dashboard import ConductorDashboard
 from transtrack.views.dashboard.driver_dashboard import DriverDashboard
 from transtrack.views.dashboard.operations_dashboard import OperationsDashboard
 from transtrack.views.dashboard.owner_dashboard import OwnerDashboard
+from transtrack.views.dashboard.stage_manager_dashboard import StageManagerDashboard
 from transtrack.views.login_view import LoginView
+from transtrack.views import styles
 from transtrack.views.widgets import clear_frame
 
 
@@ -16,6 +18,7 @@ class TransTrackApp(tk.Tk):
         self.title(APP_NAME)
         self.geometry("1200x760")
         self.minsize(980, 640)
+        self.configure(bg=styles.BG)
         self.show_login()
 
     def show_login(self):
@@ -31,6 +34,7 @@ class TransTrackApp(tk.Tk):
             "owner": OwnerDashboard,
             "driver": DriverDashboard,
             "conductor": ConductorDashboard,
+            "stage_manager": StageManagerDashboard,
         }
         dashboard_class = dashboards.get(role, OwnerDashboard)
         dashboard_class(self, self.show_login).pack(fill="both", expand=True)
