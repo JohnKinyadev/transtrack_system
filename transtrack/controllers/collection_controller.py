@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from transtrack.controllers.base_controller import BaseController
+from transtrack.utils.numbers import to_float
+from transtrack.utils.relations import reference_query
 from transtrack.utils.validators import parse_date
 
 
@@ -21,17 +23,17 @@ class CollectionController(BaseController):
                 "trip_id": trip_id,
                 "vehicle_id": vehicle_id,
                 "conductor_id": conductor_id,
-                "amount_collected": float(amount),
+                "amount_collected": to_float(amount),
                 "date": datetime.now(),
             }
         )
 
     def total_for_vehicle(self, vehicle_id, start_date=None, end_date=None):
         total = 0
-        for row in self.collection.find({"vehicle_id": vehicle_id}):
+        for row in self.collection.find(reference_query("vehicle_id", "vehicles", vehicle_id)):
             if not _in_date_range(row.get("date"), start_date, end_date):
                 continue
-            total += float(row.get("amount_collected") or 0)
+            total += to_float(row.get("amount_collected"))
         return total
 
 
