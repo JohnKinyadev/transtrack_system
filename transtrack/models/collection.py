@@ -1,4 +1,5 @@
 from transtrack.models.base import with_timestamps
+from transtrack.utils.numbers import to_float
 
 
 def collection_document(trip_id, vehicle_id, conductor_id, amount_collected, date):
@@ -7,7 +8,7 @@ def collection_document(trip_id, vehicle_id, conductor_id, amount_collected, dat
             "trip_id": str(trip_id),
             "vehicle_id": str(vehicle_id),
             "conductor_id": str(conductor_id),
-            "amount_collected": float(amount_collected),
+            "amount_collected": to_float(amount_collected),
             "date": date,
         }
     )
