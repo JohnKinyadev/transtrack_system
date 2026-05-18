@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from bson import ObjectId
-
 from transtrack.db.connection import get_db
 from transtrack.views import styles
 from transtrack.views.lookups import display_value, label_for, public_id_from_label, relation_collection
+from transtrack.utils.relations import document_query, reference_values
 from transtrack.utils.validators import is_due_soon
 from transtrack.views.widgets import entry_value, labeled_combo, labeled_date_entry, labeled_entry, make_table
 
@@ -46,12 +45,15 @@ class CrudView(tk.Frame):
             key = field["key"]
             if field.get("type") == "select":
                 values = field["values"]() if callable(field["values"]) else field["values"]
-                widget = labeled_combo(form, field["label"], row, values, column_offset=column_offset)
+                widget = labeled_combo(form, field["label"], row, values, value=field.get("value", ""), column_offset=column_offset)
+                if field.get("relation"):
+                    widget.configure(state="normal")
             elif field.get("type") == "date":
                 widget = labeled_date_entry(
                     form,
                     field["label"],
                     row,
+                    value=field.get("value", ""),
                     placeholder=field.get("placeholder", "YYYY-MM-DD"),
                     column_offset=column_offset,
                 )
@@ -60,9 +62,12 @@ class CrudView(tk.Frame):
                     form,
                     field["label"],
                     row,
+                    value=field.get("value", ""),
                     placeholder=field.get("placeholder", ""),
                     column_offset=column_offset,
                 )
+            if field.get("readonly"):
+                widget.configure(state="readonly")
             self.inputs[key] = widget
 
         self.bind_autofill()
@@ -148,6 +153,8 @@ class CrudView(tk.Frame):
         return values[0] if values else None
 
     def save(self):
+        for rule in self.autofill_rules:
+            self.apply_autofill(rule)
         data = self.values()
         missing = [
             field["label"]
@@ -174,6 +181,9 @@ class CrudView(tk.Frame):
         self.editing_id = None
         self.save_button.configure(text=f"Save {self.title}")
         for key, widget in self.inputs.items():
+            previous_state = widget.cget("state") if hasattr(widget, "cget") else None
+            if previous_state == "readonly":
+                widget.configure(state="normal")
             if hasattr(widget, "delete"):
                 widget.delete(0, tk.END)
             field = next((item for item in self.fields if item["key"] == key), {})
@@ -181,13 +191,21 @@ class CrudView(tk.Frame):
                 widget.insert(0, widget.placeholder)
                 widget.configure(fg=styles.MUTED)
             elif field.get("type") == "select" and widget["values"]:
-                widget.current(0)
+                if field.get("value"):
+                    widget.set(field.get("value"))
+                else:
+                    widget.current(0)
+            if previous_state == "readonly":
+                widget.configure(state="readonly")
 
     def set_input(self, key, value):
         widget = self.inputs.get(key)
         if not widget:
             return
         field = next((item for item in self.fields if item["key"] == key), {})
+        previous_state = widget.cget("state") if hasattr(widget, "cget") else None
+        if previous_state == "readonly":
+            widget.configure(state="normal")
         if hasattr(widget, "delete"):
             widget.delete(0, tk.END)
         if field.get("type") == "select":
@@ -196,15 +214,21 @@ class CrudView(tk.Frame):
                 collection_name = relation_collection(key)
                 display = label_for(collection_name, value) if collection_name else value
             widget.set(display or "")
+            if previous_state == "readonly":
+                widget.configure(state="readonly")
             return
         widget.configure(fg=styles.TEXT)
         widget.insert(0, "" if value is None else value)
+        if previous_state == "readonly":
+            widget.configure(state="readonly")
 
     def bind_autofill(self):
         for rule in self.autofill_rules:
             widget = self.inputs.get(rule.get("trigger"))
             if widget:
                 widget.bind("<<ComboboxSelected>>", lambda _event, item=rule: self.apply_autofill(item), add="+")
+                widget.bind("<FocusOut>", lambda _event, item=rule: self.apply_autofill(item), add="+")
+                widget.bind("<Return>", lambda _event, item=rule: self.apply_autofill(item), add="+")
 
     def apply_autofill(self, rule):
         trigger_key = rule.get("trigger")
@@ -213,18 +237,26 @@ class CrudView(tk.Frame):
             return
         db = get_db()
         if rule.get("mode") == "copy":
-            query = {"public_id": trigger_value}
-            if ObjectId.is_valid(trigger_value):
-                query = {"$or": [{"public_id": trigger_value}, {"_id": ObjectId(trigger_value)}]}
-            document = db[rule["collection"]].find_one(query)
+            document = db[rule["collection"]].find_one(document_query(trigger_value))
             if not document:
                 return
             for source, target in rule.get("fields", {}).items():
                 self.set_input(target, document.get(source, ""))
         elif rule.get("mode") == "lookup":
-            document = db[rule["collection"]].find_one({rule["match_field"]: trigger_value})
+            document = db[rule["collection"]].find_one(
+                {rule["match_field"]: {"$in": reference_values(relation_collection(trigger_key), trigger_value)}}
+            )
             if document:
                 self.set_input(rule["target"], document.get("public_id") or str(document.get("_id")))
+        elif rule.get("mode") == "linked_user":
+            collection_name = linked_collection_for_id(trigger_value)
+            if not collection_name:
+                self.set_input(rule["name_target"], "")
+                self.set_input(rule["role_target"], "")
+                return
+            document = db[collection_name].find_one(document_query(trigger_value))
+            self.set_input(rule["name_target"], document.get("full_name", "") if document else "")
+            self.set_input(rule["role_target"], role_for_collection(collection_name) if document else "")
 
     def current_document(self):
         document_id = self.selected_id()
@@ -245,6 +277,8 @@ class CrudView(tk.Frame):
         for field in self.fields:
             value = "" if field.get("optional_on_update") else document.get(field["key"], "")
             self.set_input(field["key"], value)
+        for rule in self.autofill_rules:
+            self.apply_autofill(rule)
 
     def delete_selected(self):
         document_id = self.selected_id()
@@ -309,3 +343,17 @@ class CrudView(tk.Frame):
                         warning[1] = f"{label} for {document.get('public_id')} is almost due"
                     self.table.insert("", "end", values=warning, tags=("warning",))
                     row_index += 1
+
+
+def linked_collection_for_id(value):
+    prefix = str(value).strip().upper()[:1]
+    return {"O": "owners", "D": "drivers", "C": "conductors", "S": "stage_managers"}.get(prefix)
+
+
+def role_for_collection(collection_name):
+    return {
+        "owners": "owner",
+        "drivers": "driver",
+        "conductors": "conductor",
+        "stage_managers": "stage_manager",
+    }.get(collection_name, "")
