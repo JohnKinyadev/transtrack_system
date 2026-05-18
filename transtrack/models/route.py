@@ -1,4 +1,5 @@
 from transtrack.models.base import with_timestamps
+from transtrack.utils.numbers import to_float
 
 
 def route_document(name, origin, destination, stages, fare_structure, expected_revenue=0):
@@ -9,6 +10,6 @@ def route_document(name, origin, destination, stages, fare_structure, expected_r
             "destination": destination,
             "stages": stages,
             "fare_structure": fare_structure,
-            "expected_revenue": float(expected_revenue or 0),
+            "expected_revenue": to_float(expected_revenue),
         }
     )
