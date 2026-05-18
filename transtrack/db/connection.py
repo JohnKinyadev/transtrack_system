@@ -77,6 +77,7 @@ def create_indexes():
     db.drivers.create_index("license_no", unique=True, sparse=True)
     db.drivers.create_index("public_id", unique=True, sparse=True)
     db.conductors.create_index("public_id", unique=True, sparse=True)
+    db.stage_managers.create_index("public_id", unique=True, sparse=True)
     db.routes.create_index("public_id", unique=True, sparse=True)
     db.trips.create_index("public_id", unique=True, sparse=True)
     db.collections.create_index("public_id", unique=True, sparse=True)
