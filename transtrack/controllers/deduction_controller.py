@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from transtrack.controllers.base_controller import BaseController
+from transtrack.utils.numbers import to_float
+from transtrack.utils.relations import reference_query
 from transtrack.utils.validators import parse_date
 
 
@@ -18,7 +20,7 @@ class DeductionController(BaseController):
             {
                 "owner_id": owner_id,
                 "type": deduction_type,
-                "amount": float(amount),
+                "amount": to_float(amount),
                 "date": datetime.now(),
                 "reason": reason,
             }
@@ -26,10 +28,10 @@ class DeductionController(BaseController):
 
     def total_for_owner(self, owner_id, start_date=None, end_date=None):
         total = 0
-        for row in self.collection.find({"owner_id": owner_id}):
+        for row in self.collection.find(reference_query("owner_id", "owners", owner_id)):
             if not _in_date_range(row.get("date"), start_date, end_date):
                 continue
-            total += float(row.get("amount") or 0)
+            total += to_float(row.get("amount"))
         return total
 
 
