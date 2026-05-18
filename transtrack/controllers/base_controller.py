@@ -1,7 +1,8 @@
 from transtrack.db.connection import get_db
-from transtrack.models.base import to_object_id, with_timestamps
+from transtrack.models.base import with_timestamps
 from transtrack.utils.audit import log_action
 from transtrack.utils.id_generator import next_public_id
+from transtrack.utils.relations import document_query
 from transtrack.utils.validators import (
     require_existing_public_id,
     validate_date_format,
@@ -29,10 +30,7 @@ class BaseController:
         return list(cursor)
 
     def id_filter(self, document_id):
-        text_id = str(document_id)
-        if self.id_prefix and text_id.startswith(self.id_prefix):
-            return {"public_id": text_id}
-        return {"_id": to_object_id(document_id)}
+        return document_query(document_id)
 
     def get(self, document_id):
         return self.collection.find_one(self.id_filter(document_id))
