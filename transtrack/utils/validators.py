@@ -1,8 +1,7 @@
 from datetime import date, datetime, timedelta
 
-from bson import ObjectId
-
 from transtrack.db.connection import get_db
+from transtrack.utils.relations import document_query
 
 DATE_FORMAT = "%Y-%m-%d"
 PERIOD_FORMAT = "%Y-%m"
@@ -56,17 +55,14 @@ def is_due_soon(value, days=30):
 def require_existing_public_id(collection_name, public_id, label):
     if public_id in (None, ""):
         return
-    query = {"public_id": public_id}
-    if ObjectId.is_valid(str(public_id)):
-        query = {"$or": [{"public_id": public_id}, {"_id": ObjectId(public_id)}]}
-    exists = get_db()[collection_name].find_one(query)
+    exists = get_db()[collection_name].find_one(document_query(public_id))
     if not exists:
         raise ValueError(f"{label} '{public_id}' does not exist.")
 
 
 def validate_numeric(value, field_name, allow_zero=True):
     try:
-        number = float(value)
+        number = float(str(value or 0).replace(",", "").strip())
     except ValueError as exc:
         raise ValueError(f"{field_name} must be a number.") from exc
     if allow_zero and number < 0:
