@@ -1,4 +1,5 @@
 from transtrack.db.connection import get_db
+from transtrack.utils.relations import document_query
 
 
 DISPLAY_FIELDS = {
@@ -6,6 +7,7 @@ DISPLAY_FIELDS = {
     "vehicles": ("plate", "make", "model"),
     "drivers": ("full_name",),
     "conductors": ("full_name",),
+    "stage_managers": ("full_name",),
     "routes": ("name",),
     "trips": ("date", "status"),
 }
@@ -31,7 +33,7 @@ def options(collection_name, *name_fields):
 def label_for(collection_name, public_id):
     if not public_id:
         return ""
-    document = get_db()[collection_name].find_one({"public_id": public_id})
+    document = get_db()[collection_name].find_one(document_query(public_id))
     if not document:
         return public_id
     return document_label(document, *DISPLAY_FIELDS.get(collection_name, ()))
@@ -51,6 +53,7 @@ def relation_collection(column):
         "assigned_vehicle": "vehicles",
         "driver_id": "drivers",
         "conductor_id": "conductors",
+        "stage_manager_id": "stage_managers",
         "route_id": "routes",
         "trip_id": "trips",
     }
@@ -71,6 +74,10 @@ def driver_options():
 
 def conductor_options():
     return options("conductors", "full_name")
+
+
+def stage_manager_options():
+    return options("stage_managers", "full_name")
 
 
 def route_options():
