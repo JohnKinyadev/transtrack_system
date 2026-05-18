@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from transtrack.config import TRIP_STATUSES
 from transtrack.controllers.trip_controller import TripController
 from transtrack.views.crud_view import CrudView
@@ -8,13 +10,32 @@ class TripsView(CrudView):
     def __init__(self, master):
         fields = [
             {"key": "vehicle_id", "label": "Vehicle", "type": "select", "values": vehicle_options, "relation": True},
-            {"key": "driver_id", "label": "Driver", "type": "select", "values": driver_options, "relation": True},
-            {"key": "conductor_id", "label": "Conductor", "type": "select", "values": conductor_options, "relation": True},
-            {"key": "route_id", "label": "Route", "type": "select", "values": route_options, "relation": True},
-            {"key": "date", "label": "Date", "type": "date"},
-            {"key": "departure_time", "label": "Departure Time"},
-            {"key": "arrival_time", "label": "Arrival Time"},
-            {"key": "status", "label": "Status", "type": "select", "values": TRIP_STATUSES},
+            {
+                "key": "driver_id",
+                "label": "Driver",
+                "type": "select",
+                "values": driver_options,
+                "relation": True,
+                "readonly": True,
+            },
+            {
+                "key": "conductor_id",
+                "label": "Conductor",
+                "type": "select",
+                "values": conductor_options,
+                "relation": True,
+                "readonly": True,
+            },
+            {
+                "key": "route_id",
+                "label": "Route",
+                "type": "select",
+                "values": route_options,
+                "relation": True,
+                "readonly": True,
+            },
+            {"key": "date", "label": "Date", "type": "date", "value": datetime.now().strftime("%Y-%m-%d"), "readonly": True},
+            {"key": "status", "label": "Status", "type": "select", "values": TRIP_STATUSES, "value": "Scheduled", "readonly": True},
         ]
         detail_columns = (
             "id",
