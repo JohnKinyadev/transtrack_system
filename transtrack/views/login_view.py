@@ -30,18 +30,18 @@ class LoginView(tk.Frame):
         ).pack(anchor="w")
         tk.Label(
             intro,
-            text="Keep owners, vehicles, trips, collections, expenses, and payouts in one tidy workspace.",
+            text="A bright matatu business desk for owners, crews, collections, trips, expenses, and payouts.",
             bg=styles.PRIMARY,
-            fg="#dbeafe",
+            fg="#fff4c9",
             font=("Segoe UI", 12),
             wraplength=360,
             justify="left",
         ).pack(anchor="w", pady=(12, 28))
 
-        for label, value in (("Records", "Structured"), ("Dashboards", "Role based"), ("Reports", "Quick export")):
+        for label, value in (("Fleet", "Organized"), ("Dashboards", "Role based"), ("Cashflow", "Trackable")):
             row = tk.Frame(intro, bg=styles.PRIMARY)
             row.pack(anchor="w", fill="x", pady=5)
-            tk.Label(row, text=value, bg="#dbeafe", fg=styles.PRIMARY, font=styles.FONT_SMALL, padx=9, pady=4).pack(
+            tk.Label(row, text=value, bg=styles.SECONDARY, fg=styles.TEXT, font=styles.FONT_SMALL, padx=9, pady=4).pack(
                 side="left"
             )
             tk.Label(row, text=label, bg=styles.PRIMARY, fg=styles.WHITE, font=styles.FONT_BODY).pack(
@@ -54,7 +54,7 @@ class LoginView(tk.Frame):
         tk.Label(card, text="Welcome back", bg=styles.WHITE, fg=styles.TEXT, font=("Segoe UI", 22, "bold")).pack(
             anchor="w", pady=(8, 2)
         )
-        tk.Label(card, text="Sign in to continue", bg=styles.WHITE, fg=styles.MUTED, font=styles.FONT_BODY).pack(
+        tk.Label(card, text="Sign in to continue", bg=styles.WHITE, fg=styles.ACCENT, font=styles.FONT_BODY).pack(
             anchor="w", pady=(0, 24)
         )
 
