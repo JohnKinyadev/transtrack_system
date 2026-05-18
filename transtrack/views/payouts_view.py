@@ -1,10 +1,12 @@
+from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox
 
 from transtrack.controllers.payout_controller import PayoutController
+from transtrack.utils.numbers import to_float
 from transtrack.views import styles
-from transtrack.views.lookups import driver_options, owner_options, public_id_from_label
-from transtrack.views.widgets import entry_value, labeled_combo, labeled_date_entry, labeled_entry, make_table
+from transtrack.views.lookups import owner_options, public_id_from_label
+from transtrack.views.widgets import entry_value, labeled_combo, labeled_entry, make_table
 
 
 class PayoutsView(tk.Frame):
@@ -30,16 +32,14 @@ class PayoutsView(tk.Frame):
         form.columnconfigure(1, weight=1)
         form.columnconfigure(3, weight=1)
         self.owner_id = labeled_combo(form, "Owner", 0, owner_options())
-        self.period_start = labeled_date_entry(form, "Start Date", 0, column_offset=2)
-        self.period_days = labeled_entry(form, "Days", 1, value="7")
-        self.interest_percent = labeled_entry(form, "Interest %", 1, value="0", column_offset=2)
-        self.driver_id = labeled_combo(form, "Driver Optional", 2, ("", *driver_options()))
+        self.period_year = labeled_entry(form, "Year", 0, value=str(datetime.now().year), column_offset=2)
+        self.dividend_percent = labeled_entry(form, "Dividend %", 1, value="0")
 
         summary = tk.Frame(self, bg=styles.SURFACE_SOFT, padx=12, pady=10, highlightthickness=1, highlightbackground=styles.BORDER)
         summary.pack(fill="x", pady=(0, 12))
         self.summary_labels = {}
         for index, key in enumerate(
-            ("period", "gross_earnings", "vehicle_expenses", "owner_deductions", "interest_amount", "net_payout")
+            ("period", "shares", "dividend_percent", "annual_dividend", "net_payout")
         ):
             summary.columnconfigure(index, weight=1)
             tk.Label(
@@ -92,12 +92,9 @@ class PayoutsView(tk.Frame):
                 "id",
                 "owner_id",
                 "period",
-                "period_days",
-                "gross_earnings",
-                "vehicle_expenses",
-                "owner_deductions",
-                "total_deductions",
-                "interest_amount",
+                "shares",
+                "dividend_percent",
+                "annual_dividend",
                 "net_payout",
                 "date",
             ),
@@ -106,10 +103,8 @@ class PayoutsView(tk.Frame):
     def payout_inputs(self):
         return (
             public_id_from_label(entry_value(self.owner_id)),
-            entry_value(self.period_start),
-            entry_value(self.period_days),
-            public_id_from_label(entry_value(self.driver_id)),
-            entry_value(self.interest_percent),
+            entry_value(self.period_year),
+            entry_value(self.dividend_percent),
         )
 
     def preview(self):
@@ -148,13 +143,10 @@ class PayoutsView(tk.Frame):
                     document.get("public_id") or str(document.get("_id")),
                     document.get("owner_id", ""),
                     document.get("period", ""),
-                    document.get("period_days", ""),
-                    f"{document.get('gross_earnings', 0):,.2f}",
-                    f"{document.get('vehicle_expenses', 0):,.2f}",
-                    f"{document.get('owner_deductions', 0):,.2f}",
-                    f"{document.get('total_deductions', 0):,.2f}",
-                    f"{document.get('interest_amount', 0):,.2f}",
-                    f"{document.get('net_payout', 0):,.2f}",
+                    f"{to_float(document.get('shares')):,.2f}",
+                    f"{to_float(document.get('dividend_percent')):,.2f}",
+                    f"{to_float(document.get('annual_dividend')):,.2f}",
+                    f"{to_float(document.get('net_payout')):,.2f}",
                     document.get("date", ""),
                 ),
                 tags=("even" if row_index % 2 else "odd",),
