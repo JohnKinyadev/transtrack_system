@@ -3,16 +3,14 @@ import tkinter as tk
 from transtrack.db.connection import get_db
 from transtrack.utils.numbers import to_float
 from transtrack.views import styles
-from transtrack.views.collections_view import CollectionsView
 from transtrack.views.conductors_view import ConductorsView
 from transtrack.views.dashboard.base_dashboard import BaseDashboard
-from transtrack.views.deductions_view import DeductionsView
 from transtrack.views.drivers_view import DriversView
-from transtrack.views.expenses_view import ExpensesView
 from transtrack.views.owners_view import OwnersView
 from transtrack.views.payouts_view import PayoutsView
 from transtrack.views.reports_view import ReportsView
 from transtrack.views.routes_view import RoutesView
+from transtrack.views.stage_managers_view import StageManagersView
 from transtrack.views.trips_view import TripsView
 from transtrack.views.user_management_view import UserManagementView
 from transtrack.views.vehicles_view import VehiclesView
@@ -29,10 +27,8 @@ class AdminDashboard(BaseDashboard):
             ("Vehicles", lambda: self.show_view("Vehicle Management", VehiclesView)),
             ("Drivers", lambda: self.show_view("Driver Management", DriversView)),
             ("Conductors", lambda: self.show_view("Conductor Management", ConductorsView)),
+            ("Stage Managers", lambda: self.show_view("Stage Manager Management", StageManagersView)),
             ("Trips", lambda: self.show_view("Trip Management", TripsView)),
-            ("Collections", lambda: self.show_view("Collections Overview", CollectionsView)),
-            ("Expenses", lambda: self.show_view("Expense Overview", ExpensesView)),
-            ("Deductions", lambda: self.show_view("Deductions Management", DeductionsView)),
             ("Payouts", lambda: self.show_view("Payout Processing", PayoutsView)),
             ("Reports", lambda: self.show_view("Reports", ReportsView)),
             ("Users", lambda: self.show_view("User Management", UserManagementView)),
@@ -54,11 +50,12 @@ class AdminDashboard(BaseDashboard):
             ("Owners", db.owners.count_documents({}), "Vehicle Owner Management", OwnersView),
             ("Vehicles", db.vehicles.count_documents({}), "Vehicle Management", VehiclesView),
             ("Drivers", db.drivers.count_documents({}), "Driver Management", DriversView),
+            ("Conductors", db.conductors.count_documents({}), "Conductor Management", ConductorsView),
+            ("Stage Managers", db.stage_managers.count_documents({}), "Stage Manager Management", StageManagersView),
             ("Active Trips", active_trips, "Trip Management", TripsView),
-            ("Collections", f"{total_collections:,.0f}", "Collections Overview", CollectionsView),
-            ("Expenses", f"{total_expenses:,.0f}", "Expense Overview", ExpensesView),
             ("Net Estimate", f"{total_collections - total_expenses:,.0f}", "Reports", ReportsView),
             ("Pending Payouts", max(pending_payouts, 0), "Payout Processing", PayoutsView),
+            ("Users", db.users.count_documents({}), "User Management", UserManagementView),
         )
         grid = tk.Frame(body, bg=styles.WHITE)
         grid.pack(anchor="nw", fill="x")
