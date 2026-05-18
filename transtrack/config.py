@@ -17,6 +17,7 @@ ROLES = {
     "owner": "Vehicle Owner",
     "driver": "Driver",
     "conductor": "Conductor",
+    "stage_manager": "Stage Manager",
 }
 
 TRIP_STATUSES = ("Scheduled", "Departed", "In Transit", "Completed")
