@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from transtrack.controllers.base_controller import BaseController
+from transtrack.utils.numbers import to_float
+from transtrack.utils.relations import reference_query
 from transtrack.utils.session import get_current_user
 from transtrack.utils.validators import parse_date
 
@@ -22,7 +24,7 @@ class ExpenseController(BaseController):
                 "trip_id": trip_id,
                 "vehicle_id": vehicle_id,
                 "type": expense_type,
-                "amount": float(amount),
+                "amount": to_float(amount),
                 "logged_by": str(user.get("_id")) if user else None,
                 "date": datetime.now(),
             }
@@ -30,10 +32,10 @@ class ExpenseController(BaseController):
 
     def total_for_vehicle(self, vehicle_id, start_date=None, end_date=None):
         total = 0
-        for row in self.collection.find({"vehicle_id": vehicle_id}):
+        for row in self.collection.find(reference_query("vehicle_id", "vehicles", vehicle_id)):
             if not _in_date_range(row.get("date"), start_date, end_date):
                 continue
-            total += float(row.get("amount") or 0)
+            total += to_float(row.get("amount"))
         return total
 
 
