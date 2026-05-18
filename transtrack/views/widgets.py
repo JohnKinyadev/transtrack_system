@@ -20,8 +20,10 @@ COLUMN_LABELS = {
     "vehicle_id": "Vehicle",
     "driver_id": "Driver",
     "conductor_id": "Conductor",
+    "stage_manager_id": "Stage Manager",
     "route_id": "Route",
     "trip_id": "Trip",
+    "trips_today": "Trips Today",
     "assigned_vehicle": "Assigned Vehicle",
     "license_no": "License No.",
     "contact": "Contact",
@@ -36,6 +38,8 @@ COLUMN_LABELS = {
     "gross_earnings": "Gross Earnings",
     "interest_percent": "Interest %",
     "interest_amount": "Interest Amount",
+    "dividend_percent": "Dividend %",
+    "annual_dividend": "Annual Dividend",
     "vehicle_expenses": "Vehicle Expenses",
     "owner_deductions": "Owner Deductions",
     "total_deductions": "Total Deductions",
@@ -62,8 +66,10 @@ COLUMN_WIDTHS = {
     "vehicle_id": 160,
     "driver_id": 170,
     "conductor_id": 170,
+    "stage_manager_id": 180,
     "route_id": 170,
     "trip_id": 170,
+    "trips_today": 115,
     "assigned_vehicle": 180,
     "license_no": 140,
     "contact": 140,
@@ -76,6 +82,8 @@ COLUMN_WIDTHS = {
     "gross_earnings": 145,
     "interest_percent": 115,
     "interest_amount": 145,
+    "dividend_percent": 130,
+    "annual_dividend": 150,
     "vehicle_expenses": 145,
     "owner_deductions": 150,
     "total_deductions": 150,
@@ -95,11 +103,14 @@ NUMERIC_COLUMNS = {
     "gross_earnings",
     "interest_percent",
     "interest_amount",
+    "dividend_percent",
+    "annual_dividend",
     "vehicle_expenses",
     "owner_deductions",
     "total_deductions",
     "net_payout",
     "period_days",
+    "trips_today",
 }
 
 
@@ -130,8 +141,8 @@ def configure_ttk_styles():
     )
     style.configure(
         "TransTrack.Treeview.Heading",
-        background=styles.SURFACE_SOFT,
-        foreground=styles.TEXT,
+        background=styles.SIDEBAR,
+        foreground=styles.WHITE,
         relief="flat",
         borderwidth=1,
         font=("Segoe UI", 10, "bold"),
@@ -144,7 +155,7 @@ def configure_ttk_styles():
     )
     style.map(
         "TransTrack.Treeview.Heading",
-        background=[("active", styles.SECONDARY)],
+        background=[("active", styles.SIDEBAR_HOVER)],
     )
     style.configure("TransTrack.Vertical.TScrollbar", gripcount=0, width=13)
     style.configure("TransTrack.TCombobox", padding=5, arrowsize=14)
@@ -286,6 +297,15 @@ def make_table(parent, columns):
     table.bind("<Button-4>", lambda _event: table.yview_scroll(-1, "units"))
     table.bind("<Button-5>", lambda _event: table.yview_scroll(1, "units"))
     return table
+
+
+def metric_card(parent, label, value, bg=None, fg=None):
+    bg = bg or styles.SUCCESS_BG
+    fg = fg or styles.TEXT
+    card = tk.Frame(parent, bg=bg, padx=18, pady=14, highlightthickness=1, highlightbackground=styles.BORDER)
+    tk.Label(card, text=label, bg=bg, fg=styles.MUTED, font=styles.FONT_SMALL).pack(anchor="w")
+    tk.Label(card, text=str(value), bg=bg, fg=fg, font=("Segoe UI", 18, "bold")).pack(anchor="w", pady=(4, 0))
+    return card
 
 
 def format_id(document):
