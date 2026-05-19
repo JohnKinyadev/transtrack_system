@@ -56,6 +56,15 @@ def check_connection():
             return False, f"MongoDB DNS lookup timed out: {exc}"
         return False, f"MongoDB connection string is invalid: {exc}"
     except ServerSelectionTimeoutError as exc:
+        message = str(exc)
+        if "TLSV1_ALERT_INTERNAL_ERROR" in message or "tlsv1 alert internal error" in message.lower():
+            return (
+                False,
+                "MongoDB TLS handshake failed before authentication. "
+                "For MongoDB Atlas, check Network Access and allow this machine's public IP address, "
+                "or confirm that your network/firewall allows outbound TCP connections to port 27017. "
+                f"Details: {exc}",
+            )
         return False, f"MongoDB connection failed: {exc}"
     except PyMongoError as exc:
         return False, f"MongoDB error: {exc}"
