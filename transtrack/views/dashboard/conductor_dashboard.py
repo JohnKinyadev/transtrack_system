@@ -25,8 +25,8 @@ class ConductorDashboard(BaseDashboard):
             ("My Trips", self.show_trips),
             ("Assigned Vehicle", self.show_vehicle),
             ("My Collections", self.show_collections),
-            ("Collections", lambda: self.show_view("Collections", CollectionsView)),
-            ("Expenses", lambda: self.show_view("Expenses", ExpensesView)),
+           # ("Collections", lambda: self.show_view("Collections", CollectionsView)),
+            ("Expenses", lambda: self.show_expenses_view()),
             ("Log Collection", self.show_collection_form),
         )
         super().__init__(master, on_logout)
@@ -34,6 +34,10 @@ class ConductorDashboard(BaseDashboard):
     def show_view(self, title, view_class):
         body = self.page(title)
         view_class(body).pack(fill="both", expand=True)
+
+    def show_expenses_view(self):
+        body = self.page("Expenses")
+        ExpensesView(body, trip_only_for_fuel=True).pack(fill="both", expand=True)
 
     def conductor_id(self):
         return (get_current_user() or {}).get("linked_id")
