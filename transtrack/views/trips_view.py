@@ -3,7 +3,7 @@ from datetime import datetime
 from transtrack.config import TRIP_STATUSES
 from transtrack.controllers.trip_controller import TripController
 from transtrack.views.crud_view import CrudView
-from transtrack.views.lookups import conductor_options, driver_options, route_options, vehicle_options
+from transtrack.views.lookups import vehicle_options
 
 
 class TripsView(CrudView):
@@ -13,24 +13,18 @@ class TripsView(CrudView):
             {
                 "key": "driver_id",
                 "label": "Driver",
-                "type": "select",
-                "values": driver_options,
                 "relation": True,
                 "readonly": True,
             },
             {
                 "key": "conductor_id",
                 "label": "Conductor",
-                "type": "select",
-                "values": conductor_options,
                 "relation": True,
                 "readonly": True,
             },
             {
                 "key": "route_id",
                 "label": "Route",
-                "type": "select",
-                "values": route_options,
                 "relation": True,
                 "readonly": True,
             },
