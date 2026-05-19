@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 from transtrack.controllers.payout_controller import PayoutController
 from transtrack.utils.numbers import to_float
+from transtrack.utils.relations import resolve_document
 from transtrack.views import styles
 from transtrack.views.lookups import owner_options, public_id_from_label
 from transtrack.views.widgets import entry_value, labeled_combo, labeled_entry, make_table
@@ -131,6 +132,12 @@ class PayoutsView(tk.Frame):
                 value = f"{value:,.2f}"
             label.configure(text=value)
 
+    def owner_name(self, owner_id):
+        owner = resolve_document("owners", owner_id)
+        if owner:
+            return owner.get("full_name") or owner.get("public_id") or str(owner.get("_id"))
+        return owner_id or ""
+
     def load(self):
         for item in self.table.get_children():
             self.table.delete(item)
@@ -141,7 +148,7 @@ class PayoutsView(tk.Frame):
                 "end",
                 values=(
                     document.get("public_id") or str(document.get("_id")),
-                    document.get("owner_id", ""),
+                    self.owner_name(document.get("owner_id")),
                     document.get("period", ""),
                     f"{to_float(document.get('shares')):,.2f}",
                     f"{to_float(document.get('dividend_percent')):,.2f}",
