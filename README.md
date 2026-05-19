@@ -215,7 +215,7 @@ Possible improvements include:
 
 ## Author
 
-Python Capstone Project.
+John Muchikuri Kinya
 
 ## License
 
