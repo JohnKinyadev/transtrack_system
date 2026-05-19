@@ -41,10 +41,15 @@ class OwnerDashboard(BaseDashboard):
         owner_id = self.owner_id()
         return VehicleController().list_for_owner(owner_id) if owner_id else []
 
+    def document_reference_id(self, document):
+        if not document:
+            return ""
+        return document.get("public_id") or str(document.get("_id", ""))
+
     def owner_vehicle_ids(self):
         ids = set()
         for vehicle in self.owner_vehicles():
-            ids.update(reference_values("vehicles", format_id(vehicle)))
+            ids.update(reference_values("vehicles", self.document_reference_id(vehicle)))
         return ids
 
     def owner_crew(self, controller):
@@ -54,7 +59,7 @@ class OwnerDashboard(BaseDashboard):
         return [person for person in controller.list_all({}) if str(person.get("assigned_vehicle")) in vehicle_ids]
 
     def crew_for_vehicle(self, controller, vehicle):
-        vehicle_ids = set(reference_values("vehicles", format_id(vehicle)))
+        vehicle_ids = set(reference_values("vehicles", self.document_reference_id(vehicle)))
         for person in controller.list_all({}):
             if str(person.get("assigned_vehicle")) in vehicle_ids:
                 return person
@@ -70,14 +75,14 @@ class OwnerDashboard(BaseDashboard):
         controller = CollectionController()
         total = 0
         for vehicle in vehicles:
-            ids = reference_values("vehicles", format_id(vehicle))
+            ids = reference_values("vehicles", self.document_reference_id(vehicle))
             total += sum(to_float(row.get("amount_collected")) for row in controller.list_all({"vehicle_id": {"$in": ids}}))
         return total
 
     def trips_today_for_vehicle(self, vehicle):
         today = datetime.now().date()
         count = 0
-        for trip in TripController().list_for_vehicle(format_id(vehicle)):
+        for trip in TripController().list_for_vehicle(self.document_reference_id(vehicle)):
             try:
                 trip_date = parse_date(trip.get("date"))
             except ValueError:
@@ -138,8 +143,8 @@ class OwnerDashboard(BaseDashboard):
                     vehicle.get("plate", ""),
                     vehicle.get("make", ""),
                     vehicle.get("model", ""),
-                    display_value("driver_id", format_id(driver)) if driver else "",
-                    display_value("conductor_id", format_id(conductor)) if conductor else "",
+                    display_value("driver_id", self.document_reference_id(driver)) if driver else "",
+                    display_value("conductor_id", self.document_reference_id(conductor)) if conductor else "",
                     display_value("route_id", vehicle.get("route_id", "")),
                     self.trips_today_for_vehicle(vehicle),
                     vehicle.get("status", ""),
@@ -185,38 +190,24 @@ class OwnerDashboard(BaseDashboard):
 
     def show_crew(self):
         body = self.page("Drivers & Conductors")
-        tk.Label(body, text="Drivers", bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_HEADING).pack(anchor="w")
-        drivers_frame = tk.Frame(body, bg=styles.WHITE)
-        drivers_frame.pack(fill="both", expand=True, pady=(8, 0))
-        drivers_table = make_table(drivers_frame, ("id", "full_name", "license_no", "contact", "assigned_vehicle"))
-        for driver in self.owner_crew(DriverController()):
-            drivers_table.insert(
-                "",
-                "end",
-                values=(
-                    format_id(driver),
-                    driver.get("full_name", ""),
-                    driver.get("license_no", ""),
-                    driver.get("contact", ""),
-                    display_value("assigned_vehicle", driver.get("assigned_vehicle", "")),
-                ),
-            )
-
-        tk.Label(body, text="Conductors", bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_HEADING).pack(
-            anchor="w", pady=(18, 0)
+        table = make_table(
+            body,
+            ("vehicle_id", "plate", "driver_id", "driver_license", "driver_contact", "conductor_id", "conductor_contact"),
         )
-        conductors_frame = tk.Frame(body, bg=styles.WHITE)
-        conductors_frame.pack(fill="both", expand=True, pady=(8, 0))
-        conductors_table = make_table(conductors_frame, ("id", "full_name", "contact", "assigned_vehicle"))
-        for conductor in self.owner_crew(ConductorController()):
-            conductors_table.insert(
+        for vehicle in self.owner_vehicles():
+            driver = self.crew_for_vehicle(DriverController(), vehicle)
+            conductor = self.crew_for_vehicle(ConductorController(), vehicle)
+            table.insert(
                 "",
                 "end",
                 values=(
-                    format_id(conductor),
-                    conductor.get("full_name", ""),
-                    conductor.get("contact", ""),
-                    display_value("assigned_vehicle", conductor.get("assigned_vehicle", "")),
+                    display_value("vehicle_id", self.document_reference_id(vehicle)),
+                    vehicle.get("plate", ""),
+                    display_value("driver_id", self.document_reference_id(driver)) if driver else "",
+                    driver.get("license_no", "") if driver else "",
+                    driver.get("contact", "") if driver else "",
+                    display_value("conductor_id", self.document_reference_id(conductor)) if conductor else "",
+                    conductor.get("contact", "") if conductor else "",
                 ),
             )
 
