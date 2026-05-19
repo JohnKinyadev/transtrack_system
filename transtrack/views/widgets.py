@@ -19,7 +19,10 @@ COLUMN_LABELS = {
     "owner_id": "Owner",
     "vehicle_id": "Vehicle",
     "driver_id": "Driver",
+    "driver_contact": "Driver Contact",
+    "driver_license": "Driver License",
     "conductor_id": "Conductor",
+    "conductor_contact": "Conductor Contact",
     "stage_manager_id": "Stage Manager",
     "route_id": "Route",
     "trip_id": "Trip",
@@ -65,7 +68,10 @@ COLUMN_WIDTHS = {
     "owner_id": 180,
     "vehicle_id": 160,
     "driver_id": 170,
+    "driver_contact": 140,
+    "driver_license": 140,
     "conductor_id": 170,
+    "conductor_contact": 140,
     "stage_manager_id": 180,
     "route_id": 170,
     "trip_id": 170,
@@ -163,7 +169,8 @@ def configure_ttk_styles():
 
 
 def labeled_entry(parent, label, row, value="", placeholder="", column_offset=0):
-    tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY).grid(
+    label_widget = tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY)
+    label_widget.grid(
         row=row, column=column_offset, sticky="w", padx=8, pady=6
     )
     entry = tk.Entry(
@@ -195,12 +202,15 @@ def labeled_entry(parent, label, row, value="", placeholder="", column_offset=0)
         entry.bind("<FocusOut>", focus_out)
         entry.placeholder = placeholder
     entry.grid(row=row, column=column_offset + 1, sticky="ew", padx=8, pady=6)
+    entry.label_widget = label_widget
+    entry.grid_widget = entry
     return entry
 
 
 def labeled_combo(parent, label, row, values, value="", column_offset=0):
     configure_ttk_styles()
-    tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY).grid(
+    label_widget = tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY)
+    label_widget.grid(
         row=row, column=column_offset, sticky="w", padx=8, pady=6
     )
     combo = ttk.Combobox(parent, values=values, state="readonly", font=styles.FONT_BODY, style="TransTrack.TCombobox")
@@ -209,6 +219,8 @@ def labeled_combo(parent, label, row, values, value="", column_offset=0):
     elif values:
         combo.current(0)
     combo.grid(row=row, column=column_offset + 1, sticky="ew", padx=8, pady=6)
+    combo.label_widget = label_widget
+    combo.grid_widget = combo
     return combo
 
 
@@ -216,7 +228,8 @@ def labeled_date_entry(parent, label, row, value="", placeholder="YYYY-MM-DD", c
     wrapper = tk.Frame(parent, bg=styles.WHITE)
     wrapper.grid(row=row, column=column_offset + 1, sticky="ew", padx=8, pady=6)
     wrapper.columnconfigure(0, weight=1)
-    tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY).grid(
+    label_widget = tk.Label(parent, text=label, bg=styles.WHITE, fg=styles.TEXT, font=styles.FONT_BODY)
+    label_widget.grid(
         row=row, column=column_offset, sticky="w", padx=8, pady=6
     )
     entry = tk.Entry(
@@ -253,6 +266,8 @@ def labeled_date_entry(parent, label, row, value="", placeholder="YYYY-MM-DD", c
     entry.bind("<FocusIn>", focus_in)
     entry.bind("<FocusOut>", focus_out)
     entry.placeholder = placeholder
+    entry.label_widget = label_widget
+    entry.grid_widget = wrapper
     tk.Button(
         wrapper,
         text="Today",

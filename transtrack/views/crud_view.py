@@ -217,6 +217,9 @@ class CrudView(tk.Frame):
             if previous_state == "readonly":
                 widget.configure(state="readonly")
             return
+        if field.get("relation"):
+            collection_name = relation_collection(key)
+            value = label_for(collection_name, value) if collection_name else value
         widget.configure(fg=styles.TEXT)
         widget.insert(0, "" if value is None else value)
         if previous_state == "readonly":
@@ -248,6 +251,8 @@ class CrudView(tk.Frame):
             )
             if document:
                 self.set_input(rule["target"], document.get("public_id") or str(document.get("_id")))
+            else:
+                self.set_input(rule["target"], "")
         elif rule.get("mode") == "linked_user":
             collection_name = linked_collection_for_id(trigger_value)
             if not collection_name:
